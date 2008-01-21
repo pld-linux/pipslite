@@ -1,0 +1,107 @@
+diff -Nur pipslite-1.0.2.orig/setup/inst-cups-post.sh pipslite-1.0.2.chng/setup/inst-cups-post.sh
+--- pipslite-1.0.2.orig/setup/inst-cups-post.sh	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/setup/inst-cups-post.sh	2008-01-21 19:09:55.000000000 +0100
+@@ -45,21 +45,6 @@
+ 
+ case "$1" in
+     install)
+-	KEY=`grep 35586 < /etc/services`
+-	if [ -z "$KEY" ]; then
+-	    if [ -s $ETCDIR/services ]; then
+-		cp $ETCDIR/services $ETCDIR/services.bak
+-	    fi
+-	    cat <<EOF >>$ETCDIR/services
+-# written for $PIPS_BIN_NAME
+-cbtd     35586/tcp
+-# $PIPS_BIN_NAME  end
+-EOF
+-	    
+-	    echo "Install Message > Described entry of $PRINTER_MODEL in services."
+-	    echo "Install Message > Backup file is /etc/services.bak."
+-	fi
+-
+ #
+ # prtOpt.csv install
+ #
+@@ -82,14 +67,6 @@
+ 	;;
+ 
+     deinstall)
+-	if [ -s $DESTDIR/etc/services ]; then
+-	    KEY=`grep "\# written for $PIPS_BIN_NAME" /etc/services`
+-	    if [ -n "$KEY" ]; then
+-		mv $DESTDIR/etc/services $DESTDIR/etc/services.bak
+-		sed -e "/# written for $PIPS_BIN_NAME/,/# $PIPS_BIN_NAME  end/d" < $DESTDIR/etc/services.bak > $DESTDIR/etc/services
+-	    fi
+-	fi
+-
+ 	$PKGDATADIR/rc.d/inst-rc_d.sh deinstall
+ 	;;
+     *)
+diff -Nur pipslite-1.0.2.orig/setup/inst-lpr-post.sh pipslite-1.0.2.chng/setup/inst-lpr-post.sh
+--- pipslite-1.0.2.orig/setup/inst-lpr-post.sh	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/setup/inst-lpr-post.sh	2008-01-21 19:16:49.000000000 +0100
+@@ -84,22 +80,6 @@
+ 	    echo "Install Message > Backup file is ${PRINTCAP}.bak."
+ 	fi
+ 	
+-	
+-	KEY=`grep 35586 < /etc/services`
+-	if [ -z "$KEY" ]; then
+-	    if [ -s $ETCDIR/services ]; then
+-		cp $ETCDIR/services $ETCDIR/services.bak
+-	    fi
+-	    cat <<EOF >>$ETCDIR/services
+-# written for $PIPS_BIN_NAME
+-cbtd     35586/tcp
+-# $PIPS_BIN_NAME  end
+-EOF
+-	    
+-	    echo "Install Message > Described entry of $PIPS_BIN_NAME in services."
+-	    echo "Install Message > Backup file is /etc/services.bak."
+-	fi
+-	
+ #
+ # rcfile install
+ #
+@@ -144,14 +118,6 @@
+ 	    fi
+ 	fi
+ 	
+-	if [ -s $DESTDIR/etc/services ]; then
+-	    KEY=`grep "\# written for $PIPS_BIN_NAME" /etc/services`
+-	    if [ -n "$KEY" ]; then
+-		mv $DESTDIR/etc/services $DESTDIR/etc/services.bak
+-		sed -e "/# written for $PIPS_BIN_NAME/,/# $PIPS_BIN_NAME  end/d" < $DESTDIR/etc/services.bak > $DESTDIR/etc/services
+-	    fi
+-	fi
+-	
+ 	if [ -d $DESTDIR/var/spool/lpd/${PRINTER_MODEL_LOW} ]; then
+ 	    rm -rf $DESTDIR/var/spool/lpd/${PRINTER_MODEL_LOW}
+ 	fi
+diff -Nur pipslite-1.0.2.orig/src/pipsCom.c pipslite-1.0.2.chng/src/pipsCom.c
+--- pipslite-1.0.2.orig/src/pipsCom.c	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/src/pipsCom.c	2008-01-21 19:12:07.000000000 +0100
+@@ -46,7 +46,6 @@
+   int len;
+   struct sockaddr_in address;
+   struct hostent *hostinfo;
+-  struct servent *servinfo;
+ 
+   if (host == NULL)
+       host = "localhost";
+@@ -54,13 +53,10 @@
+   hostinfo = gethostbyname (host);
+   if (!hostinfo) return -1;
+ 
+-  servinfo = getservbyname ("cbtd", "tcp");
+-  if (!servinfo) return -1;
+-
+   sockfd = socket (AF_INET, SOCK_STREAM, 0);
+   address.sin_family = AF_INET;
+   address.sin_addr = *(struct in_addr *)*hostinfo->h_addr_list;
+-  address.sin_port = servinfo->s_port;
++  address.sin_port = htons(35586);
+ 
+   len = sizeof (address);
+   if (connect (sockfd, (struct sockaddr *)&address, len) == -1)

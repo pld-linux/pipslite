@@ -1,0 +1,70 @@
+diff -Nur pipslite-1.0.2.orig/setup/inst-lpr-post.sh pipslite-1.0.2.chng/setup/inst-lpr-post.sh
+--- pipslite-1.0.2.orig/setup/inst-lpr-post.sh	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/setup/inst-lpr-post.sh	2008-01-21 19:16:49.000000000 +0100
+@@ -48,10 +48,6 @@
+ 
+ case "$1" in
+     install)
+-	if [ ! -s $PIPSCONFDIR/pipsrc ]; then
+-	    touch $PIPSCONFDIR/pipsrc
+-	fi
+-	
+ 	if [ ! -s $PIPSCONFDIR/prtOpt.csv ]; then
+ 	    touch $PIPSCONFDIR/prtOpt.csv
+ 	    chmod a+w $PIPSCONFDIR/prtOpt.csv
+@@ -84,11 +80,6 @@
+ 	    echo "Install Message > Backup file is /etc/services.bak."
+ 	fi
+ 	
+-#
+-# rcfile install
+-#
+-	DESTDIR=$DESTDIR $PKGDATADIR/rc.d/inst-rc_d.sh install
+-	
+ 	echo "Install Message > Start /usr/share/$PIPS_BIN_NAME/setup to change setup."
+ 	
+ 	OLDMASK=`umask`
+@@ -120,8 +95,7 @@
+ 	umask $OLDMASK
+ 	
+ # printer reset
+-	DIST=`$PKGDATADIR/rc.d/inst-rc_d.sh checkdist`
+-	$PKGDATADIR/rc.d/ekpd.$DIST restart 2>&1 1>/dev/null
++	/etc/rc.d/init.d/ekpd restart 2>&1 1>/dev/null
+ 	
+ 	CHECKPC=`whereis -b checkpc | sed -e "s/^.*:[[:space:]]*//"`
+ 	if [ -n "$CHECKPC" -a -x "$CHECKPC" ] ; then
+@@ -144,8 +118,6 @@
+ 	if [ -d $DESTDIR/var/spool/lpd/${PRINTER_MODEL_LOW} ]; then
+ 	    rm -rf $DESTDIR/var/spool/lpd/${PRINTER_MODEL_LOW}
+ 	fi
+-	
+-	$PKGDATADIR/rc.d/inst-rc_d.sh deinstall
+ 	;;
+     *)
+ 	echo "Usage: install_post.sh { install | deinstall }" >&2
+diff -Nur pipslite-1.0.2.orig/setup/setup-cups.sh pipslite-1.0.2.chng/setup/setup-cups.sh
+--- pipslite-1.0.2.orig/setup/setup-cups.sh	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/setup/setup-cups.sh	2008-01-21 19:17:28.000000000 +0100
+@@ -147,7 +147,6 @@
+ 
+ 
+ # printer reset
+-DIST=`$RC_D_PATH/inst-rc_d.sh checkdist`
+-$RC_D_PATH/ekpd.$DIST restart 2>&1 1>/dev/null
+++/etc/rc.d/init.d/ekpd restart 2>&1 1>/dev/null
+ 
+ exit 0
+diff -Nur pipslite-1.0.2.orig/setup/setup-lpr.sh pipslite-1.0.2.chng/setup/setup-lpr.sh
+--- pipslite-1.0.2.orig/setup/setup-lpr.sh	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/setup/setup-lpr.sh	2008-01-21 19:17:42.000000000 +0100
+@@ -203,8 +203,7 @@
+ umask $OLDMASK
+ 
+ # printer reset
+-DIST=`$RC_D_PATH/inst-rc_d.sh checkdist`
+-$RC_D_PATH/ekpd.$DIST restart 2>&1 1>/dev/null
+++/etc/rc.d/init.d/ekpd restart 2>&1 1>/dev/null
+ 
+ CHECKPC=`whereis -b checkpc | sed -e "s/^.*:[[:space:]]*//"`
+ if [ -n "$CHECKPC" -a -x "$CHECKPC" ] ; then

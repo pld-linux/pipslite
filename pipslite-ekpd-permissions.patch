@@ -1,0 +1,27 @@
+diff -Nur pipslite-1.0.2.orig/ekpd/cbtd.c pipslite-1.0.2.chng/ekpd/cbtd.c
+--- pipslite-1.0.2.orig/ekpd/cbtd.c	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/ekpd/cbtd.c	2008-01-21 19:13:37.000000000 +0100
+@@ -83,11 +83,6 @@
+ #ifndef _DEBUG
+ 	int pid;
+ 
+-	if (geteuid () != 0)
+-	{
+-		fprintf (stderr, "must run as root\n");
+-		return 1;
+-	}
+ 	/* shift to daemon process */
+ 	if ((pid = fork ()))
+ 	{
+diff -Nur pipslite-1.0.2.orig/ekpd/cbtd_datatrans.c pipslite-1.0.2.chng/ekpd/cbtd_datatrans.c
+--- pipslite-1.0.2.orig/ekpd/cbtd_datatrans.c	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2.chng/ekpd/cbtd_datatrans.c	2008-01-21 19:12:40.000000000 +0100
+@@ -198,7 +198,7 @@
+ 	if (access (path, F_OK) == 0)
+ 		remove(path);
+ 
+-	if (mkfifo (path, 0666))
++	if (mkfifo (path, 0600))
+ 		return -1;
+ 
+ 	if (is_sysflags (p_info, ST_JOB_CANCEL | ST_JOB_CANCEL_NO_D4))
