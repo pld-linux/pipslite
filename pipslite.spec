@@ -6,8 +6,10 @@ Release:	1
 License:	Mixed (GPL, LGPL, distributable)
 Group:		Applications/Printing
 Source0:	http://lx2.avasys.jp/pips/lite%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	d509c9daa4215aac447b5078fb7fd6b0
 Source1:	%{name}-ekpd.init
+Patch0:		%{name}-services.patch
+Patch1:		%{name}-ekpd-permissions.patch             
+Patch2:		%{name}-init.patch
 URL:		http://www.avasys.jp/english/linux_e/dl_spc.html
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -19,6 +21,7 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libtool
 BuildRequires:	rpmbuild(macros) >= 1.174
 BuildRequires:	sed >= 4.0
+Requires:	cups-filter-pstoraster
 Requires:	ghostscript
 Requires(post,preun):	/sbin/chkconfig
 ExclusiveArch:	%{ix86}
@@ -48,6 +51,9 @@ Dowiązania systemu druku Epson dla cupsa.
 
 %prep
 %setup -q
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 %build
 %{__gettextize}
@@ -67,10 +73,10 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_sbindir}}
 	DESTDIR=$RPM_BUILD_ROOT
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ekpd
+:> $RPM_BUILD_ROOT%{_sysconfdir}/pipsrc
 mv $RPM_BUILD_ROOT%{_libdir}/pipslite/ekpd $RPM_BUILD_ROOT%{_sbindir}
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/pipslite/{rc.d,readme}
-rm -f $RPM_BUILD_ROOT%{_libdir}/liblite.{so,a}
 
 mv -f $RPM_BUILD_ROOT%{_datadir}/locale/zh{,_CN}
 
@@ -100,11 +106,12 @@ fi
 %doc AUTHORS ChangeLog COPYING*
 %doc doc/readmelite doc/readmelite.ja
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/pipslite/ekpdrc
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/pipsrc
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/ekpd
 %attr(754,root,root) /etc/rc.d/init.d/ekpd
 %attr(755,root,root) %{_libdir}/pipslite/*
-%attr(755,root,root) %{_libdir}/liblite.so.*
+%attr(755,root,root) %{_libdir}/liblite.so*
 %{_libdir}/liblite.la
 %attr(600,lp,lp) %{_var}/run/*
 %dir %{_datadir}/pipslite
