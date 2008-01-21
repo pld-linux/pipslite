@@ -6,6 +6,7 @@ Release:	1
 License:	Mixed (GPL, LGPL, distributable)
 Group:		Applications/Printing
 Source0:	http://lx2.avasys.jp/pips/lite%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	d509c9daa4215aac447b5078fb7fd6b0
 Source1:	%{name}-ekpd.init
 URL:		http://www.avasys.jp/english/linux_e/dl_spc.html
 BuildRequires:	autoconf
