@@ -1,0 +1,35 @@
+--- pipslite-1.0.2/src/Makefile.am.orig	2007-12-05 09:40:42.000000000 +0100
++++ pipslite-1.0.2/src/Makefile.am	2008-04-13 16:22:46.381315093 +0200
+@@ -55,7 +55,7 @@
+ 	mem.c mem.h \
+ 	def.h
+ 
+-pipslite_LDFLAGS = \
++pipslite_LDADD = \
+ 	@LIBLTDL@ \
+ 	@GTK_LIBS@ \
+ 	libcutils.la
+@@ -90,12 +90,12 @@
+ 	rscCtl.c \
+ 	rscCtl.h
+ 
+-rastertopips_LDFLAGS = \
++rastertopips_LDADD = \
+ 	@CUPS_IMAGE_LIBS@
+ rastertopips_SOURCES = \
+ 	rastertopips.c \
+ 	ekpcom.c ekpcom.h
+-pipstoprinter_LDFLAGS = \
++pipstoprinter_LDADD = \
+ 	@LIBLTDL@ \
+ 	@CUPS_LIBS@ \
+ 	libcutils.la
+@@ -107,7 +107,7 @@
+ 	getstat.c getstat.h \
+ 	optBase.h
+ 
+-ekplp_LDFLAGS = \
++ekplp_LDADD = \
+ 	@CUPS_LIBS@ \
+ 	libcutils.la
+ ekplp_SOURCES = \
