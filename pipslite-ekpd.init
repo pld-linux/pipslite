@@ -26,11 +26,7 @@ else
 	exit 0
 fi
 
-RETVAL=0
-# See how we were called.
-case "$1" in
-  start)
-	# Check if the service is already running?
+start() {
 	if [ ! -f /var/lock/subsys/ekpd ]; then
 		msg_starting "EPSON KOWA Printer Daemon"
 		# contains NPTL-unfriendly code
@@ -41,8 +37,9 @@ case "$1" in
 	else
 		msg_already_running "EPSON KOWA Printer Daemon"
 	fi
-	;;
-  stop)
+}
+
+stop() {
 	if [ -f /var/lock/subsys/ekpd ]; then
 		msg_stopping "EPSON KOWA Printer Daemon"
 		killproc ekpd
@@ -50,18 +47,42 @@ case "$1" in
 	else
 		msg_not_running "EPSON KOWA Printer Daemon"
 	fi
+}
+
+condrestart() {
+	if [ -f /var/lock/subsys/ekpd ]; then
+		stop
+		start
+	else
+		msg_not_running ekpd
+		RETVAL=$1
+	fi
+}
+
+RETVAL=0
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	stop
+	start
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  force-reload)
+	condrestart 7
 	;;
   status)
 	status ekpd
 	exit $?
 	;;
-  restart|force-reload)
-	$0 stop
-	$0 start
-	exit $?
-	;;
   *)
-	msg_usage "$0 {start|stop|restart|force-reload|status}"
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|status}"
 	exit 3
 esac
 
