@@ -1,5 +1,5 @@
 Summary:	Photo Image Print System Lite for Linux
-Summary(pl.UTF-8):	System druku fotograficznego dla Linuxa
+Summary(pl.UTF-8):	System druku fotograficznego dla Linuksa
 Name:		pipslite
 Version:	1.0.2
 Release:	1
@@ -31,11 +31,21 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 This software is a Printer Driver (filter) for the high quality print
 with SEIKO EPSON Color Ink Jet Printer from the Linux.
 
-This product supports only EPSON ESC/P-R printers. Its function is 
-same as Photo Image Print System.
-Unlike Photo Image Print System, which requires different pakage for 
-each printer model, only one pipslite package can be used for all 
-EPSON ESC/P-R printers.
+This product supports only EPSON ESC/P-R printers. Its function is
+same as Photo Image Print System. Unlike Photo Image Print System,
+which requires different package for each printer model, only one
+pipslite package can be used for all EPSON ESC/P-R printers.
+
+%description -l pl.UTF-8
+Ten pakiet zawiera sterownik drukarki (filtr) do wydruków wysokiej
+jakości na drukarkach atramentowych SEIKO EPSON Color Ink Jet Printer
+z poziomu Linuksa.
+
+Ten produkt obsługuje tylko drukarki EPSON ESC/P-R. Ma funkcje takie
+same jak Photo Image Print System; w przeciwieństwie do niego nie
+wymaga innego pakietu dla każdego modelu drukarki, istnieje tylko
+jeden pakiet pipslite, który może być używany na wszystkich drukarkach
+EPSON ESC/P-R.
 
 %package cups
 Summary:	Cups binding of Epson print system
