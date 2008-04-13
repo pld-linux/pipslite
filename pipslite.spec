@@ -3,13 +3,15 @@ Summary(pl.UTF-8):	System druku fotograficznego dla Linuksa
 Name:		pipslite
 Version:	1.0.2
 Release:	1
-License:	Mixed (GPL, LGPL, distributable)
+License:	GPL v2+ (programs), LGPL v2+ (library)
 Group:		Applications/Printing
 Source0:	http://lx2.avasys.jp/pips/lite%{version}/%{name}-%{version}.tar.gz
 Source1:	%{name}-ekpd.init
 Patch0:		%{name}-services.patch
 Patch1:		%{name}-ekpd-permissions.patch             
 Patch2:		%{name}-init.patch
+Patch3:		%{name}-link.patch
+Patch4:		%{name}-system-ltdl.patch
 URL:		http://www.avasys.jp/english/linux_e/dl_spc.html
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -21,10 +23,10 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libtool
 BuildRequires:	rpmbuild(macros) >= 1.174
 BuildRequires:	sed >= 4.0
+Requires(post,postun):	/sbin/ldconfig
+Requires(post,preun):	/sbin/chkconfig
 Requires:	cups-filter-pstoraster
 Requires:	ghostscript
-Requires(post,preun):	/sbin/chkconfig
-ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -64,6 +66,8 @@ Dowiązania systemu druku Epson dla cupsa.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 %build
 %{__gettextize}
@@ -72,7 +76,8 @@ Dowiązania systemu druku Epson dla cupsa.
 %{__autoconf}
 %{__autoheader}
 %{__automake}
-%configure
+%configure \
+	--disable-static
 %{__make}
 
 %install
@@ -87,6 +92,8 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ekpd
 mv $RPM_BUILD_ROOT%{_libdir}/pipslite/ekpd $RPM_BUILD_ROOT%{_sbindir}
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/pipslite/{rc.d,readme}
+# no devel
+rm $RPM_BUILD_ROOT%{_libdir}/liblite.la
 
 mv -f $RPM_BUILD_ROOT%{_datadir}/locale/zh{,_CN}
 
@@ -96,6 +103,7 @@ mv -f $RPM_BUILD_ROOT%{_datadir}/locale/zh{,_CN}
 rm -rf $RPM_BUILD_ROOT
 
 %post
+/sbin/ldconfig
 /sbin/chkconfig --add ekpd
 if [ -f /var/lock/subsys/ekpd ]; then
 	/etc/rc.d/init.d/ekpd restart 1>&2
@@ -111,32 +119,44 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del ekpd
 fi
 
+%postun	-p /sbin/ldconfig
+
 %files -f %{name}.lang
 %defattr(644,root,root,755)
-%doc AUTHORS ChangeLog COPYING*
-%doc doc/readmelite doc/readmelite.ja
+%doc AUTHORS ChangeLog NEWS doc/readmelite
+%lang(ja) %doc doc/readmelite.ja
+%attr(755,root,root) %{_bindir}/ekpstm
+%attr(755,root,root) %{_bindir}/pipslite
+%attr(755,root,root) %{_bindir}/pipslite-install
+%attr(755,root,root) %{_sbindir}/ekpd
+%dir %{_libdir}/pipslite
+%attr(755,root,root) %{_libdir}/pipslite/filterlite
+%attr(755,root,root) %{_libdir}/pipslite/freset
+%attr(755,root,root) %{_libdir}/pipslite/gsconfig
+%attr(755,root,root) %{_libdir}/liblite.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/liblite.so.1
+# dlopened by .so
+%attr(755,root,root) %{_libdir}/liblite.so
+%dir %{_sysconfdir}/pipslite
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/pipslite/ekpdrc
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/pipsrc
-%attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) %{_sbindir}/ekpd
 %attr(754,root,root) /etc/rc.d/init.d/ekpd
-%attr(755,root,root) %{_libdir}/pipslite/*
-%attr(755,root,root) %{_libdir}/liblite.so*
-%{_libdir}/liblite.la
-%attr(600,lp,lp) %{_var}/run/*
+%attr(600,lp,lp) %{_var}/run/ekplp0
 %dir %{_datadir}/pipslite
 %{_datadir}/pipslite/paper_list.csv
-%dir %{_datadir}/pipslite
 %dir %{_datadir}/pipslite/scripts
-%{_datadir}/pipslite/scripts/*.lc
-%attr(755,root,root) %{_datadir}/pipslite/scripts/setup-lpr.sh
+%{_datadir}/pipslite/scripts/en.lc
+%lang(ja) %{_datadir}/pipslite/scripts/ja.lc
 %attr(755,root,root) %{_datadir}/pipslite/scripts/inst-lpr-post.sh
+%attr(755,root,root) %{_datadir}/pipslite/scripts/setup-lpr.sh
 
 %files cups
 %defattr(644,root,root,755)
-%doc doc/readmelite-cups*
-%attr(755,root,root) %{_libdir}/cups/backend/*
-%attr(755,root,root) %{_libdir}/cups/filter/*
-%{_datadir}/cups/model/*
-%attr(755,root,root) %{_datadir}/pipslite/scripts/setup-cups.sh
+%doc doc/readmelite-cups
+%lang(ja) %doc doc/readmelite-cups.ja
+%attr(755,root,root) %{_prefix}/lib/cups/backend/ekplp
+%attr(755,root,root) %{_prefix}/lib/cups/filter/pipstoprinter
+%attr(755,root,root) %{_prefix}/lib/cups/filter/rastertopips
+%{_datadir}/cups/model/eklite.ppd
 %attr(755,root,root) %{_datadir}/pipslite/scripts/inst-cups-post.sh
+%attr(755,root,root) %{_datadir}/pipslite/scripts/setup-cups.sh
