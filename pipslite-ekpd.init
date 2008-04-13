@@ -29,8 +29,6 @@ fi
 start() {
 	if [ ! -f /var/lock/subsys/ekpd ]; then
 		msg_starting "EPSON KOWA Printer Daemon"
-		# contains NPTL-unfriendly code
-		LD_ASSUME_KERNEL=2.4.6; export LD_ASSUME_KERNEL
 		daemon --user lp ekpd
 		RETVAL=$?
 		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/ekpd
